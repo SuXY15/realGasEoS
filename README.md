@@ -154,7 +154,7 @@ Here we're trying to fit a function that can map the inputs including $T_r$ to t
 $$
 \begin{align*}
 \mu(y_*) & = \boldsymbol K_*^T (\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} y \\
-\sigma(y_*) &= \boldsymbol K_{**} -\boldsymbol K_*^T (\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1}\boldsymbol K_*
+\sigma^2(y_*) &= \boldsymbol K_{**} -\boldsymbol K_*^T (\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1}\boldsymbol K_*
 \end{align*}
 $$
 where $\sigma^2_n$ is the covariance of estimated Gaussian noise from observed data $(\boldsymbol X,y)$, $\boldsymbol K$ related terms are the covariance matrices as
@@ -235,8 +235,21 @@ where $g$ is the original possible noise level, which still should be estimated 
 
 
 
-##### 2.4 Implementation
+##### 2.4 Partial derivative
 
+The partial derivative with respect to temperature shows
+$$
+\begin{align*}
+
+\mu(y_*) & = \boldsymbol K_*^T (\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} y \\
+\frac{\partial\mu(y_\star)}{\partial T}&=(\frac{\partial \boldsymbol K_*}{\partial T})^T(\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} y\\
+k_{ij}&=exp(-\frac{(X_1(i,1)-X_*(j,1))^2}{\gamma_1}--\frac{(X_1(i,2)-X_*(j,2))^2}{\gamma_2})\\
+\frac{\partial k_{ij}}{\partial T}&=\frac{2X_1(i,1)-2X_*(j,1)}{T_r\gamma_1}k_{ij}\\
+\frac{\partial^2k_{ij}}{\partial T^2}&=\frac{-2}{T_r\gamma_1}k_{ij}+\frac{(2X_1(i,1)-2X_*(j,1))^2}{T_r^2\gamma_1^2}k_{ij}\\
+h_\theta
+
+\end{align*}
+$$
 
 
 ##### 2.5 Validation
