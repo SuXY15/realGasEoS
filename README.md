@@ -135,9 +135,18 @@ a_m &= \sum_i^{N_s} \sum_j^{N_s} X_i X_j a_{ij} \\
 b_m &= \sum_i^{N_s} X_i b_i
 \end{align*}
 $$
-where $X_i$ is the mole fraction of the $i^{th}$ components of the mixture,  $X_j$ is the mole fraction of the $j^{th}$ components of the mixture. Besides, $a_{ij}$ is the attractive term between a molecule of species $i$ and species $j$, which is usually calculated by $a_{ij} = (a_i a_j)^{1/2}$  or  $a_{ij}=(a_i a_j)^{1/2}(1-\delta_{ij})$.  $\delta_{ij}$
+where $X_i$ is the mole fraction of the $i^{th}$ components of the mixture,  $X_j$ is the mole fraction of the $j^{th}$ components of the mixture. Besides, $a_{ij}$ is the attractive term between a molecule of species $i$ and species $j$, which is usually calculated by $a_{ij} = (a_i a_j)^{1/2}$  or  $a_{ij}=(a_i a_j)^{1/2}(1-\delta_{ij})$.  $\delta_{ij}$ is an empirically determined binary interaction coefficient characterizing the binary formed by component i and component j.
 
-is an empirically determined binary interaction coefficient characterizing the binary formed by component i and component j.
+The mixture properties $(a\alpha)_m$ is similarly:
+$$
+(a\alpha)_m = \sum_{i=1}^N \sum_{j=1}^N X_iX_j (a_{ij}\alpha_{ij})
+$$
+
+$$
+(a_{ij}\alpha_{ij}) = \sqrt{a_i a_j \alpha_i \alpha_j}
+$$
+
+
 
 #### 2. The calibration model of alpha
 
@@ -172,7 +181,7 @@ The covariance are usually obtained via kernel functions, which are very importa
 
 + Squared exponential (or say Radial Basis Function, RBF):
   $$
-  cov(x_i, x_j) = \exp(-\frac{d(x_i,x_j)^2}{2l^2})
+  cov(x_i, x_j) = \sigma_F^2 \exp(-\frac{d(x_i,x_j)^2}{2\gamma^2})
   $$
   where $d(x_i,x_j)$ is the Euclidean distance of $x_i$ and $x_j$,  $l$ is the length scale of kernel size.
 
@@ -198,7 +207,7 @@ k(x_i,x_j) = k0(x_i,x_j) - h_\theta(x_i)^T \boldsymbol H_\theta h_\theta(x_j)
 $$
 where $h_\theta(x)$ is the 1st order global sensitivity obtained from:
 $$
-h_\theta(x) = \int_\boldsymbol X \nabla_\theta f (\boldsymbol x) k_0(x,\xi)d\xi
+h_\theta(x) = \int_\boldsymbol X \nabla_\theta f (\xi) k_0(x,\xi)d\xi
 $$
 the 2nd order global sensitivity, i.e., Hessian matrix is
 $$
@@ -214,7 +223,7 @@ $$
 $$
 The kernel function $k_0$ is:
 $$
-k_0( \xi, \zeta) = \exp(-\sum_i\frac{(\xi_i-\zeta_i)^2}{\gamma_i}) = \exp(-\frac{(\xi_1-\zeta_1)^2}{\gamma_1})\exp(-\frac{(\xi_2-\zeta_2)^2}{\gamma_2})
+k_0( \xi, \zeta) = \sigma_F^2\exp(-\sum_i\frac{(\xi_i-\zeta_i)^2}{2\gamma_i^2}) = \sigma_F^2\exp(-\frac{(\xi_1-\zeta_1)^2}{2\gamma_1^2})\exp(-\frac{(\xi_2-\zeta_2)^2}{2\gamma_2^2})
 $$
 where $\gamma_1, \gamma_2$ are the parameters of kernel function in dimension $x_1$ and $x_2$.
 
@@ -222,8 +231,8 @@ The corresponding distribution of the evaluated output $y_*$ at new  $x_*$ shoul
 $$
 \begin{align*}
 
-\mu(y_*) & = f(x_*;\theta) + \boldsymbol K_*^T \left(\boldsymbol K+\frac{\boldsymbol K_{**}}{\nu} \boldsymbol I\right)^{-1} \left[y-f(\boldsymbol X;\theta)\right] \\
-\sigma(y_*) &= \nu + \boldsymbol K_{**} - \nu\boldsymbol K_*^T \left(\boldsymbol K+\frac{\boldsymbol K_{**}}{\nu} \boldsymbol I\right)^{-1} \boldsymbol K_*
+\mu(y_*) & = f(x_*;\theta) + \boldsymbol K_*^T \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \left[y-f(\boldsymbol X;\theta)\right] \\
+\sigma(y_*) &= \nu + \boldsymbol K_{**} - \nu\boldsymbol K_*^T \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \boldsymbol K_*
 
 \end{align*}
 $$
@@ -235,24 +244,137 @@ where $g$ is the original possible noise level, which still should be estimated 
 
 
 
-##### 2.4 Partial derivative
+##### 2.4 Thermodynamic Properties
 
-The partial derivative with respect to temperature shows
+By setting at least two thermo states like $ p,T,\rho$ , one can calculate all the related thermodynamic properties of given mixture. Where pressure $p$ and temperature $T$ can be obtained explicitly from the equation of state (EoS). Density can be obtained by first getting $V_m$ via solving the cubic function:
+$$
+p = \frac{R T}{V-b} - \frac{a\alpha}{V^2+2Vb-b^2}
+$$
+Other related thermodynamic properties can be calculated via:
 $$
 \begin{align*}
-
-\mu(y_*) & = \boldsymbol K_*^T (\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} y \\
-\frac{\partial\mu(y_\star)}{\partial T}&=(\frac{\partial \boldsymbol K_*}{\partial T})^T(\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} y\\
-k_{ij}&=exp(-\frac{(X_1(i,1)-X_*(j,1))^2}{\gamma_1}--\frac{(X_1(i,2)-X_*(j,2))^2}{\gamma_2})\\
-\frac{\partial k_{ij}}{\partial T}&=\frac{2X_1(i,1)-2X_*(j,1)}{T_r\gamma_1}k_{ij}\\
-\frac{\partial^2k_{ij}}{\partial T^2}&=\frac{-2}{T_r\gamma_1}k_{ij}+\frac{(2X_1(i,1)-2X_*(j,1))^2}{T_r^2\gamma_1^2}k_{ij}\\
-h_\theta
+C_v &= \left(\frac{\partial H}{\partial T}\right)_V - V \left(\frac{\partial p}{\partial T}\right) \\
+C_p &= C_v - T \left(\frac{\partial p}{\partial T} \right)^2 /\frac{\partial p}{\partial V} \\
+s(T,p) &= \\
+e(T,p) &= \\
+h(T,p) &=
+\end{align*}
+$$
+where the corresponding partial derivatives are:
+$$
+\begin{align*}
+\left(\frac{\partial H}{\partial T}\right)_V &= C_{p,0} + V\frac{\partial p}{\partial T} - R + \frac{1}{2\sqrt2 b}\log(\frac{V+b}{V-b}) T \frac{\partial^2 (a\alpha)_m}{\partial T^2}
+\\
+\frac{\partial p}{\partial T} &= \frac{R}{V-b} - \frac{\partial (a\alpha)_m}{\partial T} \frac{1}{V^2+2Vb-b^2} \\
+\frac{\partial p}{\partial V} &= -\frac{RT}{(V-b)^2} + 2\frac{(a\alpha)_m(V+b)}{V^2+2Vb-b^2} \\
 
 \end{align*}
 $$
+The alpha related properties are:
+$$
+\begin{align*}
+\frac{\partial (a\alpha)_m}{\partial T} &= \sum_{i=1}^N \sum_{j=1}^N X_iX_j \frac{\partial (a_{ij} \alpha_{ij})}{\partial T} \\
+\frac{\partial^2 (a\alpha)_m}{\partial T^2} &= \sum_{i=1}^N \sum_{j=1}^N X_iX_j \frac{\partial^2 (a_{ij} \alpha_{ij})}{\partial T^2}
+\end{align*}
+$$
+where the derivatives of  $(a_{ij} \alpha_{ij})$ are:
+$$
+\begin{align*}
+\frac{\partial (a_{ij} \alpha_{ij})}{\partial T} &= \sqrt{a_ia_j} \frac{\partial \sqrt{\alpha_i\alpha_j}}{\partial T} = \frac{1}{2}\sqrt{a_ia_j\alpha_i\alpha_j} \left( \frac{1}{\alpha_i}\frac{\partial \alpha_i}{\partial T} + \frac{1}{\alpha_j}\frac{\partial \alpha_j}{\partial T} \right) \\
+\frac{\partial^2 (a_{ij} \alpha_{ij})}{\partial T^2} &= \frac{1}{2}\sqrt{a_ia_j\alpha_i\alpha_j} \left[ \frac{1}{\alpha_i}\frac{\partial^2 \alpha_i}{\partial T} + \frac{1}{\alpha_j}\frac{\partial^2 \alpha_j}{\partial T} + \frac{2}{\alpha_i\alpha_j} \frac{\partial \alpha_i}{\partial T} \frac{\partial \alpha_j}{\partial T} - \frac{1}{2}\left( \frac{1}{\alpha_i}\frac{\partial \alpha_i}{\partial T} + \frac{1}{\alpha_j}\frac{\partial \alpha_j}{\partial T}  \right)^2  \right]
+\end{align*}
+$$
+Finally, we only need to get $\frac{\partial \alpha}{\partial T} $ and $\frac{\partial^2 \alpha}{\partial T^2} $. 
+
++ For the original Peng-Robinson EoS framwork, 
+
+$$
+\alpha = \left[1+\kappa\left(1-\sqrt{T/T_c}\right)\right]^2
+$$
+
+Therefore,
+$$
+\begin{align*}
+\frac{\partial \alpha}{\partial T}  &= \frac{\kappa^2}{T_c} - (\kappa^2+\kappa)\frac{1}{\sqrt{Tc}} T^{-1/2}\\
+\frac{\partial^2 \alpha}{\partial T^2} &= \frac{1}{2}(\kappa^2+\kappa) \frac{1}{\sqrt{T_c}} T^{-3/2}
+\end{align*}
+$$
+
++ For the Gaussian Process's framework without basis function, we have:
+
+$$
+\alpha(x_*) = \mu(\alpha_*)  = \boldsymbol K_*^T (\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} \alpha_{obs} \\
+$$
+
+where $\alpha_{obs}$ is the given observed data of $\alpha$ from NIST or experimental data at specific temperatures and pressures. The right hand side (RHS) term $(\boldsymbol K+\sigma^2_n\boldsymbol I)^{-1} \alpha_{obs}$ is known during the prediction of $\alpha(x_*)$, hence is denoted as $\boldsymbol m$ here. For a single new evaluation point $x_*=(T_{r,*}, P_{r,*})$ , the $\boldsymbol K_*$ is matrix of dimension $N\times 1$, so:
+$$
+\alpha = \sum_{i=1}^{N} k_{*,i} m_i
+$$
+where 
+$$
+k_{*,i} = \sigma_F^2\exp(-\frac{(T_{r,*}-T_{r,i})^2}{2\gamma^2_T} - \frac{(P_{r,*}-P_{r,i})^2}{\gamma^2_T})
+$$
+Thus,
+$$
+\begin{align*}
+\frac{\partial \alpha}{\partial T} &= \sum_{i=1}^N m_i \frac{\partial k_{*,i}}{\partial T} = \sum_{i=1}^Nm_i \left(-\frac{1}{T_c}\frac{T_{r,*}-T_{r,i}}{\gamma_T^2} \right) k_{*,i} \\
+
+\frac{\partial^2 \alpha}{\partial T^2} &= \sum_{i=1}^N m_i \frac{\partial^2 k_{*,i}}{\partial T^2} = \sum_{i=1}^Nm_i \left( \frac{1}{T_c^2}\frac{(T_{r,*}-T_{r,i})^2}{\gamma_T^4} - \frac{1}{T_c^2}\frac{1}{\gamma_T^2} \right)k_{*,i}
+\end{align*}
+$$
+
++ For the Gaussian Process's framework with basis function, we have:
+
+$$
+\alpha(x_*) = \mu(\alpha_*) = f(x_*;\theta) + \boldsymbol K_*^T \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \left[y-f(\boldsymbol X;\theta)\right]
+$$
+
+Similarly, one can define the known RHS terms as $\boldsymbol m= \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \left[y-f(\boldsymbol X;\theta)\right]$, and $\alpha =  f(x_*;\theta) + \sum_{i=1}^{N} k_{*,i} m_i$, with
+$$
+k_{*,i} = k0(x_*,x_i) - h_\theta(x_*)^T \boldsymbol H_\theta h_\theta(x_i)
+$$
+where
+$$
+\begin{align*}
+h_\theta(x_*) &= \int_\boldsymbol X \nabla_\theta f (\xi) k_0(x_*,\xi)d\xi \\
+h_\theta(x_i) &= \int_\boldsymbol X \nabla_\theta f (\xi) k_0(x_i,\xi)d\xi
+\end{align*}
+$$
+so $\boldsymbol H_\theta h_\theta(x_i)$ is a known term and is hereby  denoted as $g_\theta(x_i)=[g_{i,1}, g_{i,2}, g_{i,3}]$. Therefore,
+$$
+k_{*,i} = k0(x_*,x_i) - h_\theta(x_*)^T g_\theta(x_i) = k0(x_*,x_i)  - g_{i,1} \sum_{j=1}^N k0(x_*,x_j) - g_{i,2} \sum_{j=1}^N x_{j,1} k0(x_*,x_j) - g_{i,3} \sum_{j=1}^N x_{j,2} k0(x_*,x_j)
+$$
+
+$$
+\begin{align*}
+\frac{\partial k_{*,i}}{\partial T} &= \frac{\partial k0(x_*,x_i)}{\partial T} - g_{i,1} \sum_{j=1}^N \frac{\partial k0(x_*,x_j)}{\partial T} - g_{i,2} \sum_{j=1}^N \left[ x_{j,1} \frac{\partial k0(x_*,x_j)}{\partial T} + \frac{\partial x_{j,1}}{\partial T}k0(x_*,x_j) \right]-  g_{i,3} \sum_{j=1}^N x_{j,2} \frac{\partial k0(x_*,x_j)}{\partial T}\\
+\frac{\partial^2 k_{*,i}}{\partial T^2} &= \frac{\partial^2 k0(x_*,x_i)}{\partial T^2} - g_{i,1} \sum_{j=1}^N \frac{\partial^2 k0(x_*,x_j)}{\partial T^2} - g_{i,2} \sum_{j=1}^N \left[ x_{j,1} \frac{\partial^2 k0(x_*,x_j)}{\partial T^2} + 2\frac{\partial x_{j,1}}{\partial T}\frac{\partial k0(x_*,x_j)}{\partial T} \right]-  g_{i,3} \sum_{j=1}^N x_{j,2} \frac{\partial^2 k0(x_*,x_j)}{\partial T^2}
+\end{align*}
+$$
+
+And finally:
+$$
+\begin{align*}
+\frac{\partial \alpha}{\partial T} &= \frac{\partial f}{\partial T} + \sum_{i=1}^N m_i \frac{\partial k_{*,i}}{\partial T} \\
+\frac{\partial^2 \alpha}{\partial T^2} &=  \frac{\partial^2 f}{\partial T^2} +  \sum_{i=1}^N m_i \frac{\partial^2 k_{*,i}}{\partial T^2} 
+\end{align*}
+$$
+
+##### 2.5 Implementation
 
 
-##### 2.5 Validation
+
+
+
+
+
+##### 2.6 Validation
+
+
+
+
+
+
 
 
 
