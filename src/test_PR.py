@@ -67,7 +67,7 @@ for k,name in enumerate(names):
     print("Cp_mass cost of %-20s = %.5f s"%(name, time.time()-t0))
     plt.plot(TPV_calc[:,0], TPV_calc[:,2], colors[k]+lines[k], label=name, alpha=0.8, fillstyle='none')
     # print("Cp_mass", TPV_calc[:,2])
-    
+
 plt.ylim([0,6000])
 plt.xlabel("Temperature [K]")
 plt.ylabel("Cp_mass [J/kg/K]")

@@ -13,7 +13,6 @@ T_lo, T_hi = 500, 800
 P_arr = np.array([0.5, 1, 1.817, 3, 5, 10, 20, 30, 40, 50]) * 1e6
 # P_arr = np.linspace(0.5, 50, 20) * 1e6
 
-
 # settings for O2
 #fluid = "oxygen"
 #name = "o2"
