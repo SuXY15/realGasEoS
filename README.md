@@ -362,7 +362,32 @@ $$
 
 ##### 2.5 Implementation
 
+Reading Alpha related files:
 
+```c++
+setSpeciesCoeffs(species, a, b, w)
+	-> readAlphaPara(filename, BasisTheta, KernelGamma, KernelSigma)
+		-> readCSV(filename, para, nrow, ncol)
+	-> readAlphaData(filename, AlphaX, Alphay)
+		-> readCSV(filename, para, nrow, ncol)
+```
+
+The call stack for calculating density
+
+```c++
+ThermoPhase::setState_TP(t, p)
+	-> PengRobinsonAlphaGP::setTemperature(t)
+		-> Phase::setTemperature(t)
+		-> _updateReferenceStateThermo();
+		-> updateMixingExpressions();
+			-> mixAlpha()
+			-> calculateAB(a, b, aAlpha_mix)
+	-> PengRobinsonAlphaGP::setPressure(p)
+		-> densityCalc(t, p, FLUID_PHASE, rhoNow)
+			-> updateAlpha(t, p)
+			-> setTemperature(t)
+			-> solveCubic(t, p, a, b, aAlpha_mix, Vroot)
+```
 
 
 

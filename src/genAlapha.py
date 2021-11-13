@@ -7,10 +7,10 @@ M = 170.33 / 1000
 Pcrit = CP.PropsSI(fluid, 'pcrit')
 Tcrit = CP.PropsSI(fluid, 'Tcrit')
 a, b = PR(Tcrit, Pcrit)
-T_step = 10
-D_step = 20
+T_step = 20
+D_step = 40
 T_lo, T_hi = 500, 800
-P_arr = np.array([0.5, 1, 1.817, 3, 5, 10, 15, 20, 30, 35, 40, 45, 50]) * 1e6
+P_arr = np.array([0.5, 1, 1.817, 3, 5, 10, 20, 30, 40, 50]) * 1e6
 # P_arr = np.linspace(0.5, 50, 20) * 1e6
 
 

@@ -1,8 +1,8 @@
 from utils import *
 from copy import deepcopy
 
-name = "o2"
-# name = 'c12h26'
+# name = "o2"
+name = 'c12h26'
 
 # ================================================
 # load data

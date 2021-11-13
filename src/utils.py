@@ -27,13 +27,13 @@ def PR_alpha(T, P, T_c, P_c, omega):
 def get_TPD_under_P(fluid,P, T_lo, T_hi, T_step=20, D_step=40):
     TPD_arr = []
     T = T_lo
-    D = CP.PropsSI("D","T", T, "P", P, fluid)
+    D = CP.PropsSI("D", "T", T, "P", P, fluid)
     T_old = T
     D_old = D
     count = 0
     alpha = 0.50
     while T <= T_hi:
-        D = CP.PropsSI("D","T", T, "P", P, fluid)
+        D = CP.PropsSI("D", "T", T, "P", P, fluid)
         if abs(D_old - D) < D_step or count > 5:
             TPD_arr.append([T, P, D])
             T_old = T
