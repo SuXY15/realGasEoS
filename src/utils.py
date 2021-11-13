@@ -24,6 +24,20 @@ def PR_alpha(T, P, T_c, P_c, omega):
     alpha = ( 1 + kappa * (1-np.sqrt(T/T_c)) )**2
     return alpha
 
+def PR_dalphadT(T, P, T_c, P_c, omega):
+    a = 0.45724 * R**2 * T_c**2 / P_c
+    b = 0.07780 * R * T_c / P_c
+    kappa = 0.37464 + 1.54226*omega - 0.26992*omega**2
+    dalphadT = kappa*kappa/T_c - (kappa*kappa+kappa)/np.sqrt(T_c) * T**(-1/2)
+    return dalphadT
+
+def PR_d2alphadT2(T, P, T_c, P_c, omega):
+    a = 0.45724 * R**2 * T_c**2 / P_c
+    b = 0.07780 * R * T_c / P_c
+    kappa = 0.37464 + 1.54226*omega - 0.26992*omega**2
+    d2alphadT2 = 0.5*(kappa*kappa+kappa)/np.sqrt(T_c) * T**(-3/2)
+    return d2alphadT2
+
 def get_TPD_under_P(fluid,P, T_lo, T_hi, T_step=20, D_step=40):
     TPD_arr = []
     T = T_lo

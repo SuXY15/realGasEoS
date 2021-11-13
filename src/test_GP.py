@@ -1,13 +1,13 @@
 from utils import *
 from copy import deepcopy
 
-## settings for C12
-fluid = "C12"
-name = 'c12h26'
+# ## settings for C12
+# fluid = "C12"
+# name = 'c12h26'
 
-## settings for O2
-#fluid = "oxygen"
-#name = "o2"
+# settings for O2
+fluid = "oxygen"
+name = "o2"
 
 # ================================================
 # load data
@@ -53,7 +53,23 @@ mu = Kx.T @ Ki @ y
 cov = Kxx - Kx.T @ Ki @ Kx
 sigma = np.diag(cov)
 
-# 3d plot
+# ================================================
+# GP gradient
+m = Ki @ y
+Tc = CP.PropsSI(fluid, 'Tcrit')
+dalphadT = [(-1/Tc * (Xnew[i,0] - X[:,0]) / 𝛾[0]**2 * Kx[:,i]) @ m for i in range(M)]
+d2alphadT2 = [(((Xnew[i,0] - X[:,0])**2/𝛾[0]**2 - 1)/Tc**2/𝛾[0]**2 * Kx[:,i]) @ m for i in range(M)]
+
+# ================================================
+# PR gradient
+AS = CP.AbstractState("HEOS", fluid)
+Tc = CP.PropsSI(fluid, 'Tcrit')
+Pc = CP.PropsSI(fluid, 'pcrit')
+omega = AS.acentric_factor()
+dalphadT_PR = [PR_dalphadT(Xnew[i,0]*Tc, Xnew[i,1]*Pc, Tc, Pc, omega) for i in range(M)]
+d2alphadT2_PR = [PR_d2alphadT2(Xnew[i,0]*Tc, Xnew[i,1]*Pc, Tc, Pc, omega) for i in range(M)]
+
+# 3d plot of alpha
 fig, ax = plt.subplots(subplot_kw={"projection":"3d"})
 ax.scatter(X[:,0], X[:,1], y, 'r')
 ax.scatter(Xnew[:,0], Xnew[:,1], mu, 'g')
@@ -61,5 +77,23 @@ ax.set_xlabel("Tr")
 ax.set_ylabel("Pr")
 ax.set_zlabel("Alpha")
 plt.legend(["Groundtruth ", "Prediction"])
+
+# 3d plot of dalphadT
+fig, ax = plt.subplots(subplot_kw={"projection":"3d"})
+ax.scatter(Xnew[:,0], Xnew[:,1], dalphadT_PR, 'r')
+ax.scatter(Xnew[:,0], Xnew[:,1], dalphadT, 'g')
+ax.set_xlabel("Tr")
+ax.set_ylabel("Pr")
+ax.set_zlabel("dalphadT")
+plt.legend(["PR", "AlphaGP"])
+
+# 3d plot of d2alphadT2
+fig, ax = plt.subplots(subplot_kw={"projection":"3d"})
+ax.scatter(Xnew[:,0], Xnew[:,1], d2alphadT2_PR, 'r')
+ax.scatter(Xnew[:,0], Xnew[:,1], d2alphadT2, 'g')
+ax.set_xlabel("Tr")
+ax.set_ylabel("Pr")
+ax.set_zlabel("d2alphadT2")
+plt.legend(["PR", "AlphaGP"])
 
 plt.show()

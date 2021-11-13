@@ -312,7 +312,7 @@ $$
 $$
 where 
 $$
-k_{*,i} = \sigma_F^2\exp(-\frac{(T_{r,*}-T_{r,i})^2}{2\gamma^2_T} - \frac{(P_{r,*}-P_{r,i})^2}{\gamma^2_T})
+k_{*,i} = \sigma_F^2\exp(-\frac{(T_{r,*}-T_{r,i})^2}{2\gamma^2_T} - \frac{(P_{r,*}-P_{r,i})^2}{2\gamma^2_T})
 $$
 Thus,
 $$
