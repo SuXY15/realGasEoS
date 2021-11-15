@@ -2,19 +2,42 @@
 
 >  This code repository is used to evaluate the advantages of the proposed real gas equation of state (EoS)
 
+[TOC]
+
 #### 1. Code Environment
 
 ```shell
+# Repo for cantera implementation
+https://github.com/SuXY15/cantera
+# Repo for this code
+https://github.com/SuXY15/realGasEoS
+# the file structure of this code
+.
+├── figs					# figures
+├── Makefile				# Makefile for convenient  
+├── mech					# mechanism files
+├── README.md				# this document
+├── README.pdf				# PDF version of this document
+├── ref						# references, papers, etc
+└── src						# source file directory
+    ├── genAlapha.py			# generate alpha `groundtruth` data 
+    ├── test_GPB.py				# test Gaussian Process with Basis Function, in Python
+    ├── test_GP.py				# test Gaussian Process without Basis Function, in Python
+    ├── test_PR.py				# test Peng-Robinson EoS with AlphaGP compensation, in Cantera
+    ├── trainGP.m				# train Gaussian Process in Matlab
+    └── utils.py				# useful tools and functions
+
+```
+
+```shell
 # Cantera used in /opt/cantera_libs/cantera, one can modified code in `src` and build & install by
-conda activate cantera
-python3 /usr/bin/scons build
 python3 /usr/bin/scons install
 ```
 
 ```shell
 # The code in this repo can be run by
 source /usr/local/bin/setup_cantera
-python3 src/xxx.py
+python3 src/test_PR.py
 ```
 
 
@@ -126,7 +149,7 @@ p = \frac{R T}{V_m-b} - \frac{a\alpha}{(V_m+\delta_1b)(V_m+\delta_2b)}
 $$
 where $\delta_2$ is not independent and $\delta_2 = (1-\delta_1)(1+\delta_1)$. And it will degenerate to SRK when $\delta_1=1, \delta_2=0$; and degenerate to PR when  $\delta_1 = 1+\sqrt2, \delta_2 = 1-\sqrt2 $.
 
-##### 1.7 Mixture properties
+##### 1.8 Mixture properties
 
 When handling mixture, to obtain the aggregate parameters $a_m$, $b_m$ of the cubic EoS, mixing rules from the van der Waals one-fluid theory is applied:
 $$
@@ -393,27 +416,39 @@ ThermoPhase::setState_TP(t, p)
 
 + The training data of $\alpha$ along with $T_r, P_r$ is generated via quering in NIST database. For a given $T,P$, one can get $V$ in NIST database and $\alpha$ is obtained using PR equation of state, in `genAlpha.py`.
 
-+ The training of Gaussian Process is accomplished by the matlab code `trainGP.m`, using `fitrgp` function in matlab.
++ The training of Gaussian Process is accomplished by the Matlab code `trainGP.m`, using `fitrgp` function in Matlab.
 
-+ Validation in Python code of Gaussian Proccess.
++ Validation in Python code `test_GP.py` of Gaussian Process, where the left panel is C12 and the right panel shows the result of oxygen.
 
-  Xxxx
+  <img src="figs/PythonAlphaGP_alpha_C12.png" style="width:48%;" /> <img src="figs/PythonAlphaGP_alpha_oxygen.png" style="width:48%;" />
 
-+ Validation in Cantera implementation. Below is the comparison of **density $\rho$**, where the left pannel is C12 and the right pannel shows the result of oxygen.
++ Validation in Cantera implementation. Below is the comparison of **density $\rho$**, where the left panel is C12 and the right panel shows the result of oxygen.
 
 <img src="figs/PRAlphaGP_C12_Density.png" style="width:48%;" /> <img src="figs/PRAlphaGP_oxygen_Density.png" style="width:48%;" />
 
-+ Validation in Cantera implementation. Below is the comparison of **heat capacity $C_p$**, where the left pannel is C12 and the right pannel shows the result of oxygen.
++ Validation in Cantera implementation. Below is the comparison of **heat capacity $C_p$**, where the left panel is C12 and the right panel shows the result of oxygen.
 
 <img src="figs/PRAlphaGP_C12_Cp_mass.png" style="width:48%;" /> <img src="figs/PRAlphaGP_oxygen_Cp_mass.png" style="width:48%;" />
 
-+ xxx
++ While $C_p$ is influenced by the 1st and 2nd order gradients of $\alpha$ along with temperature $T$, the gradients are plotted here compared with PR's gradients. The first order gradients of C12 (left) and oxygen (right):
+
+<img src="figs/PythonAlphaGP_dalphadT_C12.png" style="width:48%;" /> <img src="figs/PythonAlphaGP_dalphadT_oxygen.png" style="width:48%;" />
+
+​		The second order gradients of C12 (left) and oxygen (right):
+
+<img src="figs/PythonAlphaGP_d2alphadT2_C12.png" style="width:48%;" /> <img src="figs/PythonAlphaGP_d2alphadT2_oxygen.png" style="width:48%;" />
+
+
+
+
 
 
 
 
 
 #### 3. Appendix
+
+##### 3.1 The equation of heat capacity $C_p$ 
 
 Using the chain rule from Table 5, Page 4 of [Partial derivatives of thermodynamic state properties for dynamic simulation](https://link.springer.com/article/10.1007/s12665-013-2394-z),
 $$
