@@ -232,7 +232,7 @@ $$
 \begin{align*}
 
 \mu(y_*) & = f(x_*;\theta) + \boldsymbol K_*^T \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \left[y-f(\boldsymbol X;\theta)\right] \\
-\sigma(y_*) &= \nu + \boldsymbol K_{**} - \nu\boldsymbol K_*^T \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \boldsymbol K_*
+\sigma^2(y_*) &= \nu + \boldsymbol K_{**} - \nu\boldsymbol K_*^T \left(\boldsymbol K+\frac{\sigma_n^2}{\nu} \boldsymbol I\right)^{-1} \boldsymbol K_*
 
 \end{align*}
 $$
@@ -389,9 +389,25 @@ ThermoPhase::setState_TP(t, p)
 			-> solveCubic(t, p, a, b, aAlpha_mix, Vroot)
 ```
 
-
-
 ##### 2.6 Validation
+
++ The training data of $\alpha$ along with $T_r, P_r$ is generated via quering in NIST database. For a given $T,P$, one can get $V$ in NIST database and $\alpha$ is obtained using PR equation of state, in `genAlpha.py`.
+
++ The training of Gaussian Process is accomplished by the matlab code `trainGP.m`, using `fitrgp` function in matlab.
+
++ Validation in Python code of Gaussian Proccess.
+
+  Xxxx
+
++ Validation in Cantera implementation. Below is the comparison of **density $\rho$**, where the left pannel is C12 and the right pannel shows the result of oxygen.
+
+<img src="figs/PRAlphaGP_C12_Density.png" style="width:48%;" /> <img src="figs/PRAlphaGP_oxygen_Density.png" style="width:48%;" />
+
++ Validation in Cantera implementation. Below is the comparison of **heat capacity $C_p$**, where the left pannel is C12 and the right pannel shows the result of oxygen.
+
+<img src="figs/PRAlphaGP_C12_Cp_mass.png" style="width:48%;" /> <img src="figs/PRAlphaGP_oxygen_Cp_mass.png" style="width:48%;" />
+
++ xxx
 
 
 

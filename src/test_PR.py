@@ -9,21 +9,21 @@ colors = ['r', 'b', 'g', 'c']
 # ================================================
 # settings
 
-# # settings for C12
-# fluid = "C12"
-# X = {'c12h26':1}
-# T_step = 10
-# D_step = 20
-# T_lo, T_hi = 500, 800
-# P_arr = np.array([1.817]) * 1e6
+# settings for C12
+fluid = "C12"
+X = {'c12h26':1}
+T_step = 10
+D_step = 20
+T_lo, T_hi = 500, 800
+P_arr = np.array([1.817]) * 1e6
 
-# settings for o2
-fluid = "oxygen"
-X = {'o2':1}
-T_step = 20
-D_step = 40
-T_lo, T_hi = 60, 400
-P_arr = np.array([5]) * 1e6
+# # settings for o2
+# fluid = "oxygen"
+# X = {'o2':1}
+# T_step = 20
+# D_step = 40
+# T_lo, T_hi = 60, 400
+# P_arr = np.array([5]) * 1e6
 
 # ================================================
 # get adaptive TP list and NIST data
@@ -34,7 +34,7 @@ TPD_arr = np.array(TPD_arr)
 
 # ================================================
 # Density
-plt.figure()
+fig = plt.figure()
 plt.plot(TPD_arr[:,0], TPD_arr[:,2], 'ks', label="NIST", fillstyle='none')
 
 for k,name in enumerate(names):
@@ -50,6 +50,7 @@ for k,name in enumerate(names):
 plt.xlabel("Temperature [K]")
 plt.ylabel("Density [kg/m^3]")
 plt.legend()
+plt.savefig("figs/PRAlphaGP_%s_Density.png"%fluid)
 
 # ================================================
 # Cp_mass
@@ -57,7 +58,7 @@ TPV_arr = deepcopy(TPD_arr)
 for i,(T,P,_) in enumerate(TPD_calc):
     TPV_arr[i,2] = CP.PropsSI("C", "T", T, "P", P, fluid)
 
-plt.figure()
+fig = plt.figure()
 plt.plot(TPV_arr[:,0], TPV_arr[:,2], 'ks', label="NIST", fillstyle='none')
 
 for k,name in enumerate(names):
@@ -76,5 +77,6 @@ plt.ylim([0,6000])
 plt.xlabel("Temperature [K]")
 plt.ylabel("Cp_mass [J/kg/K]")
 plt.legend()
+plt.savefig("figs/PRAlphaGP_%s_Cp_mass.png"%fluid)
 
 plt.show()

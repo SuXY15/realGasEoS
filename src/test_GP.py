@@ -1,13 +1,13 @@
 from utils import *
 from copy import deepcopy
 
-# ## settings for C12
-# fluid = "C12"
-# name = 'c12h26'
+## settings for C12
+fluid = "C12"
+name = 'c12h26'
 
-# settings for O2
-fluid = "oxygen"
-name = "o2"
+# # settings for O2
+# fluid = "oxygen"
+# name = "o2"
 
 # ================================================
 # load data
@@ -71,29 +71,35 @@ d2alphadT2_PR = [PR_d2alphadT2(Xnew[i,0]*Tc, Xnew[i,1]*Pc, Tc, Pc, omega) for i 
 
 # 3d plot of alpha
 fig, ax = plt.subplots(subplot_kw={"projection":"3d"})
+ax.set_title("Alpha")
 ax.scatter(X[:,0], X[:,1], y, 'r')
 ax.scatter(Xnew[:,0], Xnew[:,1], mu, 'g')
 ax.set_xlabel("Tr")
 ax.set_ylabel("Pr")
 ax.set_zlabel("Alpha")
 plt.legend(["Groundtruth ", "Prediction"])
+fig.savefig("figs/PythonAlphaGP_alpha_%s.png"%fluid)
 
 # 3d plot of dalphadT
 fig, ax = plt.subplots(subplot_kw={"projection":"3d"})
+ax.set_title("dalphadT")
 ax.scatter(Xnew[:,0], Xnew[:,1], dalphadT_PR, 'r')
 ax.scatter(Xnew[:,0], Xnew[:,1], dalphadT, 'g')
 ax.set_xlabel("Tr")
 ax.set_ylabel("Pr")
 ax.set_zlabel("dalphadT")
 plt.legend(["PR", "AlphaGP"])
+fig.savefig("figs/PythonAlphaGP_dalphadT_%s.png"%fluid)
 
 # 3d plot of d2alphadT2
 fig, ax = plt.subplots(subplot_kw={"projection":"3d"})
+ax.set_title("d2alphadT2")
 ax.scatter(Xnew[:,0], Xnew[:,1], d2alphadT2_PR, 'r')
 ax.scatter(Xnew[:,0], Xnew[:,1], d2alphadT2, 'g')
 ax.set_xlabel("Tr")
 ax.set_ylabel("Pr")
 ax.set_zlabel("d2alphadT2")
 plt.legend(["PR", "AlphaGP"])
+fig.savefig("figs/PythonAlphaGP_d2alphadT2_%s.png"%fluid)
 
 plt.show()
