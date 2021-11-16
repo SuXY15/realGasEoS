@@ -438,7 +438,29 @@ ThermoPhase::setState_TP(t, p)
 
 <img src="figs/PythonAlphaGP_d2alphadT2_C12.png" style="width:48%;" /> <img src="figs/PythonAlphaGP_d2alphadT2_oxygen.png" style="width:48%;" />
 
++ From the  view of fitting:
 
+  + The PR EoS is an approximation of `real` EoS, and $\alpha(T_r, P_r)$ is a modeled empirical term in PR EoS.
+    $$
+    p = \frac{R T}{V-b} - \frac{a\alpha}{V^2+2Vb-b^2}
+    $$
+
+  + And the heat capacity is a function of $C_p=f(p,T,\alpha,\frac{\partial \alpha}{\partial T}, \frac{\partial^2 \alpha}{\partial T^2})$ 
+    $$
+    \begin{align*}
+    C_p &= \left(\frac{\partial H}{\partial T}\right)_V - V \left(\frac{\partial p}{\partial T}\right) - T \left(\frac{\partial p}{\partial T} \right)^2 /\frac{\partial p}{\partial V} \\
+    \left(\frac{\partial H}{\partial T}\right)_V &= C_{p,0} + V\frac{\partial p}{\partial T} - R + \frac{1}{2\sqrt2 b}\log(\frac{V+b}{V-b}) T \frac{\partial^2 (a\alpha)_m}{\partial T^2} \\
+    \frac{\partial p}{\partial T} &= \frac{R}{V-b} - \frac{\partial (a\alpha)_m}{\partial T} \frac{1}{V^2+2Vb-b^2} \\
+    \frac{\partial p}{\partial V} &= -\frac{RT}{(V-b)^2} + 2\frac{(a\alpha)_m(V+b)}{V^2+2Vb-b^2} \\
+    
+    \end{align*}
+    $$
+  
+  + Therefore, using $\alpha$ from $p,T,V$ 
+    $$
+    \alpha = \frac{V^2+2Vb-b^2}{a} \left(\frac{R T}{V-b} - p \right)
+    $$
+    would only improve the accuracy of $V$ or $\rho$, but could not improve the performance of $C_p$.
 
 
 

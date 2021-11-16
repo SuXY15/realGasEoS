@@ -1,8 +1,14 @@
 from utils import *
 from copy import deepcopy
+np.random.seed(0)
 
-# name = "o2"
+## settings for C12
+fluid = "C12"
 name = 'c12h26'
+
+# # settings for O2
+# fluid = "oxygen"
+# name = "o2"
 
 # ================================================
 # load data
@@ -11,6 +17,16 @@ dim = data.shape[1]-1
 X = data[:,:dim]
 y = data[:,dim]
 N = len(y)
+
+Ntrain = int(N*0.7)
+Ntest = N - Ntrain
+idx = np.random.permutation(N)
+Xall = deepcopy(X)
+yall = deepcopy(y)
+X = Xall[idx[:Ntrain], :]
+y = yall[idx[:Ntrain]]
+Xtest = Xall[idx[Ntrain:], :]
+ytest = yall[idx[Ntrain:]]
 
 para = np.loadtxt('mech/Alpha/%s_para.csv'%name, delimiter=',')
 𝛾 = para[0,:dim] # kernel size
@@ -39,7 +55,7 @@ def dfdθ(x, θ):
 
 K0  = k0(X, X)
 df = dfdθ(X,θ)
-Hm = [np.outer(df[i], df[j]) * K0[i,j] for i in range(N) for j in range(N)]
+Hm = [np.outer(df[i], df[j]) * K0[i,j] for i in range(len(X)) for j in range(len(X))]
 H = np.mean(Hm, axis=0)
 
 def h(X1, X, θ):
@@ -49,6 +65,7 @@ def h(X1, X, θ):
 
 def k(X1, X2, X, H, θ):
     return k0(X1,X2) + h(X1,X,θ).T @ H @ h(X2,X,θ)
+
 
 # ================================================
 # random queries
@@ -62,7 +79,7 @@ Xnew = Xnew[np.argsort(Xnew[:,1]),:]
 Xnew = Xnew[np.argsort(Xnew[:,0]),:]
 
 K = k(X, X, X, H, θ)
-Ki = np.linalg.inv(K + 1e-4*np.diag(np.ones(N)))
+Ki = np.linalg.inv(K + 1e-4*np.diag(np.ones(len(X))))
 Kxx = k(Xnew, Xnew, X, H, θ)
 Kx = k(X, Xnew, X, H, θ)
 
@@ -87,5 +104,18 @@ ax.set_xlabel("Tr")
 ax.set_ylabel("Pr")
 ax.set_zlabel("Alpha")
 plt.legend(["Groundtruth ", "Prediction"])
+
+# ================================================
+# Extra validation
+ypred_train = f(X,θ) + k(X, X, X, H, θ).T @ Ki @ (y-f(X,θ))
+ypred_test = f(Xtest,θ) + k(X, Xtest, X, H, θ).T @ Ki @ (y-f(X,θ))
+
+fig = plt.figure()
+plt.plot(y, ypred_train, 'rs', fillstyle="none", label='Training Data')
+plt.plot(ytest, ypred_test, 'gv', fillstyle="none", label='Test Data')
+plt.xlabel("Groundtruth")
+plt.ylabel("Prediction")
+plt.legend()
+fig.savefig("figs/PythonAlphaGPB_Validation_%s.png"%fluid)
 
 plt.show()

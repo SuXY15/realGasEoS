@@ -1,5 +1,6 @@
 from utils import *
 from copy import deepcopy
+np.random.seed(0)
 
 ## settings for C12
 fluid = "C12"
@@ -17,6 +18,16 @@ X = data[:,:dim]
 y = data[:,dim]
 N = len(y)
 
+Ntrain = int(N*0.7)
+Ntest = N - Ntrain
+idx = np.random.permutation(N)
+Xall = deepcopy(X)
+yall = deepcopy(y)
+X = Xall[idx[:Ntrain], :]
+y = yall[idx[:Ntrain]]
+Xtest = Xall[idx[Ntrain:], :]
+ytest = yall[idx[Ntrain:]]
+
 para = np.loadtxt('mech/Alpha/%s_para.csv'%name, delimiter=',')
 𝛾 = para[0,:dim] # kernel size
 σ = para[0,dim]  # kernel multiplier
@@ -33,7 +44,7 @@ def k0(X1, X2, 𝛾=𝛾, σ=σ):
 
 # ================================================
 # random queries
-M = 100
+M = 200
 x1lim = [np.min(X[:,0]), np.max(X[:,0])]
 x2lim = [np.min(X[:,1]), np.max(X[:,1])]
 Xnew = np.random.rand(M, dim)
@@ -47,7 +58,7 @@ Xnew = Xnew[np.argsort(Xnew[:,0]),:]
 Kxx = k0(Xnew, Xnew)
 Kx = k0(X, Xnew)
 K  = k0(X, X)
-Ki = np.linalg.inv(K + 1e-4*np.diag(np.ones(N)))
+Ki = np.linalg.inv(K + 1e-4*np.diag(np.ones(len(X))))
 
 mu = Kx.T @ Ki @ y
 cov = Kxx - Kx.T @ Ki @ Kx
@@ -98,5 +109,18 @@ ax.set_xlabel("Tr")
 ax.set_ylabel("Pr")
 plt.legend(["PR", "AlphaGP"])
 fig.savefig("figs/PythonAlphaGP_d2alphadT2_%s.png"%fluid)
+
+# ================================================
+# Extra validation
+ypred_train = k0(X, X).T @ Ki @ y
+ypred_test = k0(X, Xtest).T @ Ki @ y
+
+fig = plt.figure()
+plt.plot(y, ypred_train, 'rs', fillstyle="none", label='Training Data')
+plt.plot(ytest, ypred_test, 'gv', fillstyle="none", label='Test Data')
+plt.xlabel("Groundtruth")
+plt.ylabel("Prediction")
+plt.legend()
+fig.savefig("figs/PythonAlphaGP_Validation_%s.png"%fluid)
 
 plt.show()
