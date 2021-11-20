@@ -12,9 +12,10 @@ X = Data(idx,1:dim);
 Y = Data(idx,end);
 
 % Training
-Ntrain = floor(N*1.0);
+Ntrain = floor(N*0.9);
 gprMdl = fitrgp(X(1:Ntrain,:), Y(1:Ntrain), 'BasisFunction', 'Linear', ...
-               'KernelFunction','ardsquaredexponential', 'FitMethod','exact', 'PredictMethod','exact');
+               'KernelFunction','ardsquaredexponential', 'FitMethod','exact', ...
+               'PredictMethod', 'exact', 'OptimizeHyperparameters', 'auto');
 
 Xtest = X(Ntrain+1:end,:);
 Ytest = Y(Ntrain+1:end);

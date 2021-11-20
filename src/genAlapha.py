@@ -7,10 +7,11 @@ M = 170.33 / 1000
 Pcrit = CP.PropsSI(fluid, 'pcrit')
 Tcrit = CP.PropsSI(fluid, 'Tcrit')
 a, b = PR(Tcrit, Pcrit)
-T_step = 20
-D_step = 40
+T_step = 5
+D_step = 20
 T_lo, T_hi = 500, 800
-P_arr = np.array([0.5, 1, 1.817, 3, 5, 10, 20, 30, 40, 50]) * 1e6
+P_arr = 2*np.array([1.817]) * 1e6
+# P_arr = np.array([0.5, 1, 1.817, 3, 5, 7.5, 10, 15, 20, 25, 30, 35, 40, 45, 50]) * 1e6
 # P_arr = np.linspace(0.5, 50, 20) * 1e6
 
 # settings for O2
@@ -55,14 +56,24 @@ plt.plot(T, D, 's', label="NIST Desity", alpha=0.5)
 
 plt.figure()
 plt.plot(T, Alpha, 's', label="NIST alpha", alpha=0.5)
-plt.plot(T, PR_Alpha, 'o', label="NIST alpha", alpha=0.5)
+plt.plot(T, PR_Alpha, 'o', label="PR alpha", alpha=0.5)
+plt.xlabel("T")
+plt.ylabel("Alpha")
+plt.legend()
+
 
 # ===============
 # # save results
-Data = np.zeros(TPD_arr.shape)
+#Data = np.zeros(TPD_arr.shape)
+#Data[:,0] = T / Tcrit
+#Data[:,1] = P / Pcrit
+#Data[:,2] = Alpha
+#np.savetxt("mech/Alpha/%s.csv"%name, Data, delimiter=', ')
+
+# only save Temperature
+Data = np.zeros((len(TPD_arr), 2))
 Data[:,0] = T / Tcrit
-Data[:,1] = P / Pcrit
-Data[:,2] = Alpha
+Data[:,1] = Alpha
 np.savetxt("mech/Alpha/%s.csv"%name, Data, delimiter=', ')
 
 plt.show()
